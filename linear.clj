@@ -66,7 +66,7 @@
     (letfn [(f [r d] (if (= d [2 2])
                        (det-2x2 m)
                        (reduce + (map * (flatten m)
-                                      (cycle [1 -1])
+                                      (cycle [1 -1]) ; need to fix this to use interleave-signs
                                       (map det (take r (minors m)))))))]
       (let [[r :as d] (dimensions m)]
         (f r d)))
