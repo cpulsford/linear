@@ -1,49 +1,18 @@
 ;;
-;; some linear algebra helpers
+;; Cameron Pulsford
+;; A simple linear algebra lib
 ;;
 
-(defn matrix
-  "user=> (matrix [[1 2 3] [4 5 6] [7 8 9]])
-   ((1 2 3) (4 5 6) (7 8 9)) 
-   
-   user=> (matrix [1 2 3] [4 5 6] [7 8 9])
-   ((1 2 3) (4 5 6) (7 8 9))
-  
-  user=> (matrix [[1 2 3] [4] [7 8 9]])
-  Error Illegally sized matrix."
-  ([m] (if (apply == (map count m))
-         (map seq m)
-         (throw (Error. "Illegal sized matrix."))))
-  ([m1 & more] (matrix (list* m1 more))))
 
-(defn mat-print [m]
-  (println (interpose \newline m)))
-
-(defn transpose [m]
-  (apply map list m))
-
-(defn add [m1 m2]
-  (map (partial map +) m1 m2))
-
-(defn sub [m1 m2]
-  (map (partial map -) m1 m2))
-
-(defn mul [m1 m2]
-  (for [a m1]
-    (for [b (transpose m2)]
-      (reduce + (map * a b)))))
-
-(defn minors [m]
-  (letfn [(drop-at [n m]
-                   (concat (take n m) (drop (inc n) m)))]
-    (let [r (range (count m))]
-      (for [a r b r]
-        (->> m
-            (drop-at a)
-            (map #(drop-at b %)))))))
+;;
+;; helpers
+;;
 
 (defn- det-2x2 [[[a b] [c d]]]
   (- (* a d) (* b c)))
+
+(defn drop-at [n m]
+  (concat (take n m) (drop (inc n) m)))
 
 (defn- dimensions [m]
   [(count m) (count (first m))])
@@ -61,15 +30,60 @@
           (recur (inc i) (rest x) (conj coll (first x) (take l (cycle [-1 1])))))
         coll))))
 
+(for [x (range 10) y (range 20)] [x y])
+
+(for [x (range 10)]
+  (for [y (range 10)]
+    [x y]))
+
+;
+;
+
+(defn matrix
+  "user=> (matrix [[1 2 3] [4 5 6] [7 8 9]])
+   ((1 2 3) (4 5 6) (7 8 9)) 
+   
+   user=> (matrix [1 2 3] [4 5 6] [7 8 9])
+   ((1 2 3) (4 5 6) (7 8 9))
+  
+  user=> (matrix [[1 2 3] [4] [7 8 9]])
+  Error Illegally sized matrix."
+  ([m] (if (apply == (map count m))
+         (map seq m)
+         (throw (Error. "Illegal sized matrix."))))
+  ([m1 & more] (matrix (list* m1 more))))
+
+(defn print-mat [m]
+  (doseq [x m] (println x)))
+
+(defn transpose [m]
+  (apply map list m))
+
+(defn add [m1 m2]
+  (map (partial map +) m1 m2))
+
+(defn sub [m1 m2]
+  (map (partial map -) m1 m2))
+
+(defn mul [m1 m2]
+  (for [a m1]
+    (for [b (transpose m2)]
+      (reduce + (map * a b)))))
+
+(defn minors [m]
+  (let [r (range (count m))]
+    (for [a r b r]
+      (->> m
+          (drop-at a) ; drop the i'th row
+          (map #(drop-at b %)))))) ; drop the j'th column
+
 (defn det [m]
   (if (square? m)
-    (letfn [(f [r d] (if (= d [2 2])
-                       (det-2x2 m)
-                       (reduce + (map * (flatten m)
-                                      (cycle [1 -1]) ; need to fix this to use interleave-signs
-                                      (map det (take r (minors m)))))))]
-      (let [[r :as d] (dimensions m)]
-        (f r d)))
+    (if (= (dimensions m) [2 2])
+      (det-2x2 m)
+      (reduce + (map * (first m)
+                       (cycle [1 -1])
+                       (map det (minors m)))))
     (throw (Error. "Can not find the determinant of a non-square matrix."))))
 
 (defn cofactors [m]
