@@ -3,7 +3,6 @@
 ;; A simple linear algebra lib
 ;;
 
-
 ;;
 ;; helpers
 ;;
@@ -37,12 +36,12 @@
 (defn matrix
   "user=> (matrix [[1 2 3] [4 5 6] [7 8 9]])
    ((1 2 3) (4 5 6) (7 8 9)) 
-   
+
    user=> (matrix [1 2 3] [4 5 6] [7 8 9])
    ((1 2 3) (4 5 6) (7 8 9))
-  
-  user=> (matrix [[1 2 3] [4] [7 8 9]])
-  Error Illegally sized matrix."
+
+   user=> (matrix [[1 2 3] [4] [7 8 9]])
+   Error Illegally sized matrix."
   ([m] (if (apply == (map count m))
          (map seq m)
          (throw (Error. "Illegal sized matrix."))))
@@ -77,8 +76,8 @@
     ((fn self [m] (if (= (dimensions m) [2 2])
                     (det-2x2 m)
                     (reduce + (map * (first m)
-                                   (cycle [1 -1])
-                                   (map self (minors m)))))) m)
+                                     (cycle [1 -1])
+                                     (map self (minors m)))))) m)
     (throw (Error. "Can not find the determinant of a non-square matrix."))))
 
 (defn cofactors [m]
@@ -95,7 +94,6 @@
     (if (zero? d)
       (throw (Error. (format "Non-invertible matrix.")))
       (for [row adj] (for [col row] (* (/ 1 d) col))))))
-
 
 ;;
 ;; tests
