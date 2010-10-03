@@ -9,10 +9,11 @@
 ;;
 
 (defn- det-2x2 [[[a b] [c d]]]
-  (- (* a d) (* b c)))
+  (- (* (int a) (int d))
+     (* (int b) (int c))))
 
 (defn drop-at [n m]
-  (concat (take n m) (drop (inc n) m)))
+  (concat (take (int n) m) (drop (inc (int n)) m)))
 
 (defn- dimensions [m]
   [(count m) (count (first m))])
@@ -29,12 +30,6 @@
           (recur (inc i) (rest x) (conj coll (first x) (take l (cycle [1 -1]))))
           (recur (inc i) (rest x) (conj coll (first x) (take l (cycle [-1 1])))))
         coll))))
-
-(for [x (range 10) y (range 20)] [x y])
-
-(for [x (range 10)]
-  (for [y (range 10)]
-    [x y]))
 
 ;
 ;
@@ -74,16 +69,16 @@
   (let [r (range (count m))]
     (for [a r b r]
       (->> m
-          (drop-at a) ; drop the i'th row
-          (map #(drop-at b %)))))) ; drop the j'th column
+           (drop-at a) ; drop the i'th row
+           (map #(drop-at b %)))))) ; drop the j'th column
 
 (defn det [m]
-  (if (square? m)
-    (if (= (dimensions m) [2 2])
-      (det-2x2 m)
-      (reduce + (map * (first m)
-                       (cycle [1 -1])
-                       (map det (minors m)))))
+  (if [(square? m)]
+    ((fn self [m] (if (= (dimensions m) [2 2])
+                    (det-2x2 m)
+                    (reduce + (map * (first m)
+                                   (cycle [1 -1])
+                                   (map self (minors m)))))) m)
     (throw (Error. "Can not find the determinant of a non-square matrix."))))
 
 (defn cofactors [m]
@@ -97,6 +92,19 @@
 (defn inverse [m]
   (let [adj (adjoint m)
         d (det m)]
-    (if (not= d 0)
-      (for [row adj] (for [col row] (* (/ 1 d) col)))
-      (throw (Error. (format "Non-invertible matrix"))))))
+    (if (zero? d)
+      (throw (Error. (format "Non-invertible matrix.")))
+      (for [row adj] (for [col row] (* (/ 1 d) col))))))
+
+
+;;
+;; tests
+;;
+
+(defn mat-test [x]
+  (mul x (inverse x)))
+
+(mat-test [[1 2 3 4] [4 5 6 1] [7 8 -9 3] [1 1 1 1]])
+(mat-test [[1 2 3] [4 5 6] [7 8 -9]])
+(mat-test [[1 2 3] [4 5 6] [7 8 9]])
+
