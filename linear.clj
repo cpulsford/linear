@@ -29,17 +29,16 @@
 
 (defn- square?
   [m]
-  (let [[r c] (dimensions m)]
-    (== r c)))
+  (apply == (dimensions m)))
 
-(defn- nested-cycle
+(defn- ccycle
   [& more]
   (cycle (map cycle more)))
 
 (defn- interleave-signs
   [m]
   (let [l (count (first m))]
-    (interleave m (map #(take l %) (nested-cycle [1 -1] [-1 1])))))
+    (interleave m (map #(take l %) (ccycle [1 -1] [-1 1])))))
 
 (defn- mat-map
   ([f m]
@@ -68,9 +67,13 @@
 
 (defn mul
   [m1 m2]
-  (for [a m1]
-    (for [b (transpose m2)]
-      (reduce + (map * a b)))))
+  (let [[a _] (dimensions m1)
+        [_ b] (dimensions m2)]
+    (if (== a b)
+      (for [a m1]
+        (for [b (transpose m2)]
+          (reduce + (map * a b))))
+      (throw (Error. "Illegal dimensions for multiplication.")))))
 
 (defn minors
   [m]
