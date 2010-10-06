@@ -80,8 +80,8 @@
   (let [r (range (count m))]
     (for [i r j r]
       (->> m
-        (drop-at i)
-        (map #(drop-at j %))))))
+           (drop-at i)
+           (map #(drop-at j %))))))
 
 (defn det
   [m]
@@ -118,7 +118,11 @@
   [x]
   (mul x (inverse x)))
 
-(mat-test [[1 2 3 4] [4 5 6 1] [7 8 -9 3] [1 1 1 1]])
-(mat-test [[1 2 3] [4 5 6] [7 8 -9]])
+;; these two cases should fail
 (mat-test [[1 2 3] [4 5 6] [7 8 9]])
+(mat-test [[1] [2 3 4] [5 6 7]])
+
+;; these should return the identity matrix
+(print-mat (mat-test [[1 2 3 4] [4 5 6 1] [7 8 -9 3] [1 1 1 1]]))
+(print-mat (mat-test [[1 2 3] [4 5 6] [7 8 -9]]))
 
