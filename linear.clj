@@ -35,10 +35,10 @@
   [& more]
   (cycle (map cycle more)))
 
-(defn- interleave-signs
-  [m]
-  (let [l (count (first m))]
-    (interleave m (map #(take l %) (ccycle [1 -1] [-1 1])))))
+(defn- identity-sign-mat
+  [r]
+  (for [x (take r (ccycle [1 -1] [-1 1]))]
+    (take r x)))
 
 (defn- mat-map
   ([f m]
@@ -51,7 +51,7 @@
 
 (defn print-mat
   [m]
-  (doseq [x m] (println x)))
+  (domap println m))
 
 (defn transpose
   [m]
@@ -78,10 +78,10 @@
 (defn minors
   [m]
   (let [r (range (count m))]
-    (for [a r b r]
+    (for [i r j r]
       (->> m
-        (drop-at a) ; drop the i'th row
-        (map #(drop-at b %)))))) ; drop the j'th column
+        (drop-at i)
+        (map #(drop-at j %))))))
 
 (defn det
   [m]
@@ -95,9 +95,9 @@
 
 (defn cofactors
   [m]
-  (let [[r] (dimensions m)]
-    (for [x (->> (minors m) (map det) (partition r) interleave-signs (partition 2))]
-      (apply map * x))))
+  (let [r (first (dimensions m))
+        dets (->> m minors (map det) (partition r))]
+    (mat-map * dets (identity-sign-mat r))))
 
 (defn adjoint
   [m]
