@@ -105,11 +105,10 @@
 
 (defn inverse
   [m]
-  (let [adj (adjoint m)
-        d (det m)]
+  (let [d (det m)]
     (if (not (zero? d))
-      (mat-map #(* % (/ 1 d)) adj)
-      (throw (Error. (format "Non-invertible matrix."))))))
+      (mat-map #(* % (/ d)) (adjoint m))
+      (throw (Error. "Non-invertible matrix.")))))
 
 ;;
 ;; tests
