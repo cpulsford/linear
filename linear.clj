@@ -82,7 +82,7 @@
 
 (defn det
   [m]
-  (if [(square? m)]
+  (if (square? m)
     ((fn self [m] (if (= (dimensions m) [2 2])
                     (det-2x2 m)
                     (reduce + (map * (first m)
