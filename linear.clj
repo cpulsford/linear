@@ -36,9 +36,9 @@
   (cycle (map cycle more)))
 
 (defn- identity-sign-mat
-  [r]
+  [r c]
   (for [x (take r (ccycle [1 -1] [-1 1]))]
-    (take r x)))
+    (take c x)))
 
 (defn- mat-map
   ([f m]
@@ -77,11 +77,11 @@
 
 (defn minors
   [m]
-  (let [r (range (count m))]
-    (for [i r j r]
-      (->> m
-           (drop-at i)
-           (map #(drop-at j %))))))
+  (for [r (range (count m))
+        c (range (count (first m)))]
+    (->> m
+         (drop-at r)
+         (map #(drop-at c %)))))
 
 (defn det
   [m]
@@ -95,9 +95,9 @@
 
 (defn cofactors
   [m]
-  (let [r (first (dimensions m))
+  (let [[r c] (dimensions m)
         dets (->> m minors (map det) (partition r))]
-    (mat-map * dets (identity-sign-mat r))))
+    (mat-map * dets (identity-sign-mat r c))))
 
 (defn adjoint
   [m]
