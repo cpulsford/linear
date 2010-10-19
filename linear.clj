@@ -3,51 +3,33 @@
 ;; A simple linear algebra lib
 ;;
 
-;;
-;; helpers and utils
-;;
-
-(defn domap
-  ([f x]
-   (doseq [i x] (f i)))
-  ([f x & more]
-   (doseq [i (apply map list x more)]
-     (apply f i))))
+(ns linear
+  (use utils))
 
 (defn- det-2x2
+  "Finds the determinant of a 2x2 matrix."
   [[[a b] [c d]]]
-  (- (* (int a) (int d))
-     (* (int b) (int c))))
+  (- (* a d)
+     (* b c)))
 
-(defn drop-at
-  [n m]
-  (concat (take (int n) m) (drop (inc (int n)) m)))
-
-(defn- dimensions
+(defn dimensions
   [m]
   [(count m) (count (first m))])
 
-(defn- square?
+(defn square?
   [m]
   (apply == (dimensions m)))
 
-(defn- ccycle
-  [& more]
-  (cycle (map cycle more)))
-
-(defn- identity-sign-mat
+(defn identity-sign-mat
   [r c]
-  (for [x (take r (ccycle [1 -1] [-1 1]))]
+  (for [x (take r (cycle' [1 -1] [-1 1]))]
     (take c x)))
 
-(defn- mat-map
+(defn mat-map
   ([f m]
    (map #(map f %) m))
   ([f m1 m2]
    (map #(map f %1 %2) m1 m2)))
-
-;
-;
 
 (defn print-mat
   [m]
